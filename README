@@ -1,0 +1,15 @@
+This was build to test and demo the new avida event.cfg command SetPeriodicResourceInflow
+
+To set up to use these Jupyter notebooks use the following in the terminal
+
+git clone https://github.com/DBlackwood/avidaPeriodicResourceDemo
+cd avidaPeriodicResourceDemo
+git submodule init && git submodule update
+cd avida && ./build_avida 
+cd .. && virtualenv -p `which python3` venv && . venv/bin/activate
+pip install -r requirements.txt && ln -s ../avida/cbuild/work/avida default_config/avida
+
+          At that point you can launch the notebook by:
+jupyter notebook
+
+
