@@ -1,0 +1,7 @@
+[submodule "avida"]
+	path = avida
+	url = https://github.com/devosoft/avida
+	branch = VaryTime
+[submodule "avidares"]
+	path = avidares
+	url = https://github.com/ruppmatt/avidares
