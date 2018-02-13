@@ -1,0 +1,29 @@
+This experiment will produce a single output file that gives the current
+abundance of a set of resources over the course of the experiment.
+
+Resources will be:
+
+   - Global (non-spatial, non-cellular, non-gradient)
+   - Have the same initial abundance, inflow rate, outflow rate
+
+
+We will have N resources which vary by:
+
+   - How often the inflow rate gets set to zero
+
+We want to determine how the global resources respond to changes to inflow rate
+adjustments to emulate seasonality.  This should be boring, but give us some
+intuition about how values of inflow / outflow / timing map onto abundance
+changes over time.
+
+We will use this set of experiments as a template to see if spatial resources
+(geometry set to GRID or TORUS) respond in a similar manner in the next set of
+experiments.  We will not be evaluating GRADIENT resources at this time.  We
+suspect that spatial resources (GRID/TORUS) may not respond to inflow changes in
+the same manner (or even at all) using the SetResourceInflow action as the
+action doesn't appear to adjust for cellular-based accounting (cSpatResCount).
+
+We will use the actions:
+
+   - PrintResourceData  #To print resource abundances
+   - SetResourceInflow  #To adjust individual resource inflow rates

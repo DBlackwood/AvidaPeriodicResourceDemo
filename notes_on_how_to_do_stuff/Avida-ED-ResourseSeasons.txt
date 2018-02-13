@@ -1,0 +1,419 @@
+
+Bio productivity cycles
+http://rstb.royalsocietypublishing.org/content/365/1555/3215
+https://en.wikipedia.org/wiki/Phenology#/media/File:MODIS_NDVI_Temporal_Profile_Conifer.jpg
+
+
+Goals
+--------
+Summary
+Use a sine wave to control inflow rates
+- Change inflow rates and leave outflow constant
+- - Make sure we have an “action” that handles adjusting these parameters.
+- - ActionName resource_name xx.xxx  (e.g. ChangeInflowRate)
+- - - I’m sure if they apply to CELL RESOURCES
+- - - (Can cell resources have the same name  as “global” spatial resources?  I think they can?)
+- - - Check Cell Resources
+- - We can play with them in the Resources Notebook
+
+Walk thru code to see what we have
+look at turning off inflow to see how they drain out of system
+
+   DoOutput is the srat of how task checking begins . . . Triggered by a instruction
+
+cReaction --<> [cRequsites. . . ]
+
+
+Check list 
+------------------------
+set up a new git branch
+
+VaryTime = stuff that varies with time
+
+
+Terminal commands used
+mkdir SpatInf
+git clone https://github.com/devosoft/avida
+cd avida
+git branch SpatInf
+git checkout SpatInf
+git push --set-upstream origin VaryTime      so matt can be in the same place
+
+rm rf test        (to get rid of a folder named test that was in the wrong place)
+
+
+Xcode stuff used
+Product-->Scheme --> Manage Schemes
+  in the window that openned
+   - highlight avida and then using gear menu, select "duplicate"
+   - named this scheme "avida infspat0"
+   - clicked shared so it will push
+   - changed working folder for the scheme to test0
+Then from the command line, in the avida folder
+  git submodule init && git submodule update
+   these are in the file (script) build_avida, but xcode does not know about this
+
+Then hit play in xcode and it worked. now we can make changes. (break it)
+
+------------------------------------------------------------------------------------------------
+mkdir VaryTime
+cd VaryTime
+git clone https://github.com/devosoft/avida.git
+  509  cd avida
+  510  git branch VaryTime
+  511  git checkout VaryTime
+  512  git push
+  513  git push --set-upstream origin VaryTime
+  514  ./build_avida
+  515  cd ..
+  516  ls
+  517  mkdir test_inject_global
+  518  cd test_inject_global/
+  519  cp ../avida/cbuild/work/avida .
+  520  ln -s  ../avida/cbuild/work/avida .
+  521  cp ../avida/cbuild/work/instset-heads.cfg ../avida/cbuild/work/avida.cfg ../avida/cbuild/work/analyze.cfg ../avida/cbuild/work/events.cfg ../avida/cbuild/work/environment.cfg ../avida/cbuild/work/default-heads.org .
+------------------------------------------------------------------------------------------------
+to set up virtual environment
+be in VaryTime folder
+make a virtual environment using python3 for this project 
+    virtualenv -p `which python3` venv
+
+
+activate the virtual environment 
+    . venv/bin/activate
+
+install packages
+    pip install pandas matplotlib
+    pip install cython progressbar2
+
+get up to date stuff and install
+    pip install -U pandas matplotlib    
+
+
+to make a requirements file use 
+    pip freeze > requirements.txt
+
+to get jupyter
+    pip install -U jupyter
+
+jupyter notebook to create a new blank notebook 
+------------------------------------------------------------------------------------------------
+
+
+
+
+
+. is the equilivant of source
+  cd _dev/avidaProjects/VaryTime/avida
+  ./build_avida 
+
+
+in <dBlackwood:~/_dev/avidaProjects/VaryTime 
+virtualenv -p `which python3` venv
+. venv/bin/activate
+
+     jupyter notebook   when ready to start notebook
+
+
+cd _dev/avidaProjects/VaryTime/test_ioflow_global
+ln -s ../avida/cbuild/work/avida
+ls -lh   to see  that it made a link
+
+  pwd                                     print working directory 
+
+
+Now edit events and environment file
+
+
+------------------------------------------------------------------------------------------------
+make a new action that can be called in the events.cfg file  2018 Jan 11  Matt and Diane in Clearwater
+------------------------------------------------------------------------------------------------
+man ls   will get the manual for ls
+
+
+X-code
+
+made changes in avida using x-code and built do make sure it would build successfully. 
+Then build from the command line
+change into the avida folder then, 
+  ./build_avida
+
+Now make a new test folder with new config files
+  mkdir test_in_period
+  cd test_in_periodSii/
+  ln -s  ../avida/cbuild/work/avida .
+  cp ../avida/cbuild/work/instset-heads.cfg ../avida/cbuild/work/avida.cfg ../avida/cbuild/work/analyze.cfg ../avida/cbuild/work/events.cfg ../avida/cbuild/work/environment.cfg ../avida/cbuild/work/default-heads.org .
+
+————————————————————————————————————————————————————
+Making VaryTime Python Notebook a git Repository
+————————————————————————————————————————————————————
+look at http://timstaley.co.uk/posts/making-git-and-jupyter-notebooks-play-nice/
+
+~/_dev/avidaProjects/VaryTime > git init
+
+now we are going to try to avoid clogging up git with output from cells
+  need to install jq which is a command line json processor
+  the link is https://stedolan.github.io/jq/xz
+
+  501 echo ${PATH}
+  502  cd _d
+  503  cd software/pathfolder
+  504  ls -lh
+  505  chmod 755 jq
+  506  ls -lh
+  507  which jq
+  ###  cd
+  508  vim .gitconfig 
+
+put in code from website after the core group
+  [core]
+                                         this is the stuff we added
+[filter "nbstrip_full"]
+clean = "jq --indent 1 \
+        '(.cells[] | select(has(\"outputs\")) | .outputs) = []  \
+        | (.cells[] | select(has(\"execution_count\")) | .execution_count) = null  \
+        | .metadata = {\"language_info\": {\"name\": \"python\", \"pygments_lexer\": \"ipython3\"}} \
+        | .cells[].metadata = {} \
+        '"
+smudge = cat
+required = true
+
+————————————————————————————————————————————————————
+Then make  repository
+————————————————————————————————————————————————————
+  501  cd _dev/avidaProjects/VaryTime
+  502  ls
+  503  git init
+  504  ls -lh
+  505  ls -a                          to see the .files
+  506  vim .gitattributes
+Put the following line in the file
+      *.ipynb filter=nbstrip_full
+
+  509  git add *.ipynb
+  511  git check-attr -a *
+  ###  git status
+  ###  git commit -m 'initial commit with *.ipynb only'
+  ###  vim .gitignore
+
+          put the following in the file
+/venv/
+/videos/
+*~
+.ipynb_checkpoints/
+/test*/data/
+*.m
+
+
+rename the avida and avidares folders something else so we can pull them to make them submodules
+then add .gitignore
+  522  git submodule add -b VaryTime https://github.com/devosoft/avida avida
+  523  git status
+  524  git submodule add https://github.com/ruppmatt/avidares avidares
+  525  git status
+  526  cat .gitmodules
+
+  ###  git add .gitignore
+  ###  git add .gitattributes 
+
+  532  git add test_in_period test_ioflow_global test_inflow_global
+  533  git status
+  534  vim README
+  535  . venv/bin/activate
+  536  pip freeze
+  537  pip freeze > requirements.txt
+  538  git add requirements.txt 
+
+
+git add test_in_period test_ioflow_global test_inflow_global
+
+
+then two commands from the github website
+
+————————————————————————————————————————————————————
+Stuff to set up environment in README file
+
+This was build to test and demo the new avida event.cfg command SetPeriodicResourceInflow
+
+To set up to use these Jupyter notebooks use the following in the terminal
+
+git clone https://github.com/DBlackwood/avidaPeriodicResourceDemo
+cd avidaPeriodicResourceDemo
+git submodule init && git submodule update
+cd avida && ./build_avida 
+cd .. && virtualenv -p `which python3` venv && . venv/bin/activate
+pip install -r requirements.txt && ln -s ../avida/cbuild/work/avida default_config/avida
+
+          At that point you can launch the notebook by:
+jupyter notebook
+
+————————————————————————————————————————————————————
+VIM
+————————————————————————————————————————————————————
+vim filename to open vim with a certain file. 
+[esc]i to insert
+[escape]   to leaven insert mode
+[shift]:wq   to have command prompt;  write;   quit
+
+
+————————————————————————————————————————————————————
+command prompt
+————————————————————————————————————————————————————
+md5 build_avida to get hash number
+pwr to get what folder one is in
+cd to change folder to home or root
+cat to concatenate files, but just list one then it gives a listing
+ls to get a folder listing
+ls -alh   listing with all files; long version; human readable file size
+ls -lh    long version;   including where a soft link goes 
+nameOfExecutableFile --version     to get a version number
+which nameOfFile
+mv     move to change the file or folder name.
+&& to put more than one command on the same line. if one command fails it does not do the next command
+& to something in background as a batch
+can use | to redirect stuff to another program  
+3 streams = input stream, output stream and error stream
+
+ln creates a soft link -s means soft
+<dBlackwood:~/_dev/avida-ed-testing > ln -s ~/_dev/avida/cbuild/work/ av_ui
+
+————————————————————————————————————————————————————
+————————————————————————————————————————————————————
+Running tests before making a change to git for avida. This is for the branch we made - then later merged into main git
+————————————————————————————————————————————————————
+first remove the cbuild folder (which is like "clean" in the xcode products menu
+then run build_avida
+. is the equilivant of source
+  cd _dev/avidaProjects/VaryTime/avida
+  ./build_avida 
+
+
+Remember to Deactivate the virtual environment before running avida tests
+./run_tests --help
+./run_tests -j 8 --long-tests                     # will run both long and short tests
+
+
+Some resources allow more than one resource to be stated on the same line os getting rid of all white space failed
+
+Need a different approach. 
+
+
+————————————————————————————————————————————————————————————————————————————————————————————————————————
+————————————————————————————————————————————————————————————————————————————————————————————————————————
+Merge VaryTime with Avida-ED branch of Avida
+————————————————————————————————————————————————————————————————————————————————————————————————————————
+Make a fresh copy of Avida-ED-web
+In _dev\avidaProjects
+   git clone https://github.com/devosoft/avida.git
+
+  xxx  cd _dev
+  503  cd avidaProjects
+  505  git clone https://github.com/devosoft/avida.git
+  506  cd avida
+  508  git branch -v               # just to get info
+  509  git branch -r               # just to get info
+  510  git checkout AvidaED-Web
+  511  cd .. 
+  515  mv avida AvidaED-Web
+  516  cd AvidaED-Web
+  xxx  git merge origin/VaryTime
+  522  git status              # just to get info
+  526  git diff avida-core/tests/revert_EQU/expected/data/detail-100.spop     #compares what is on local disk
+  xxx  git diff --staged filename                   #files that have been auto merged and what is on disk. 
+
+We had 4 files with conflicts. Two were .cc files and then build-avida
+There were indicators in the file with ======== dividing the main version from the version from varytime. 
+That let us determine what had changed and fix it. 
+
+xCode had a way to mark the CC files at resolved by right clicking on the name fo the file in the left pane and selecting version control 
+
+A git pull is a macro combination of a git fetch and a git merge
+
+Then added the individual files
+git add filename1 filename2
+
+Now we will build and test before completing the merge on github
+
+./build_avida --help             # to get info
+./build_avida clean              # to get needed stuff clean the folders
+
+
+We had some errors. There are tiny dark red error indicators in the stuff spit out in the terminal, that includes the error, the file name and line number
+or things can be run in xcode and click on the error indicator to find the error. 
+
+After fixing the error, then rebuild in both xCode and in the terminal to make sure it builds right
+then run the tests
+
+
+————————————————————————————————————————————————————
+————————————————————————————————————————————————————
+Salmon Run Towers
+————————————————————————————————————————————————————
+In order of life of salmon
+* I have an image for that
+
+
+Cold water with oxygen
+Food
+*plants help with both food and hiding places
+Hiding places (roots/rocks)
+shade (tress, bushes, rocks) 
+* beaver dams
+* other fish - predator
+* turns - predator
+* gulls - predator
+* silt from logging (relationship more cryptic)
+* pipe with pollution
+
+Ocean
+* sea lion
+* dolphin
+* beluga whale
+* killer whale
+* fishing boat
+
+Going Upstream
+* Bears
+* Bald Eagle
+* Dam
+* Fish Ladder
+
+
+
+
+
+————————————————————————————————————————————————————
+
+------------------------------
+Meetings with Robin & Jake
+Mon-Wed: before 11 and after 5pm
+Tue-Thr: before noon or between 3 and 3:30pm
+Friday: hard 
+
+Robin
+MW
+Before 11 after 4:30
+
+TR
+NOt between 12:20 to 2:20
+Friday 11:30 to 12:30
+DEVO 2pm on 
+
+----------------
+Jake
+Monday and Wednesday: At or before 1:30pm, 5:00pm or later
+
+Tuesday: At or before 12:00pm, between 3:00pm and 4:30pm
+
+Thursday: At or before 12:00pm, 3:00pm or later
+Friday: class from 9-10 am
+Class with two sections on Friday
+Section 12:40 2:30; 3 to 4:50
+Jake is in the first section for the first 3 weeks
+Group projects needs to be in same section as his group, but groups change
+
+
+-----------------
+Talked to Peggy on 22 Jan
+Talked to someone on 9 Jan
+Said it should go thru Tabatha
